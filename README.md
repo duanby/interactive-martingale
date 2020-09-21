@@ -31,4 +31,4 @@ figures/.: figures in the paper.
 
 ## Dependencies
 The code was tested using R (version 3.6.3) and the following packages:
-stats, graphics, robustbase, splines, zoo, pracma, igraph, isotone, data.tree, rootSolve, devtools, AWFisher, wHC, ggplot2, reshape2
+stats, graphics, robustbase, splines, zoo, pracma, igraph, isotone, data.tree, rootSolve, devtools, AWFisher, wHC, ggplot2, reshape2, dpylr
