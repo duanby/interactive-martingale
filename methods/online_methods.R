@@ -25,11 +25,11 @@ mst_online = function(P, alpha, ub_func, n_included, sum_stat){
 # online adaptive martingale test
 # P:          vector of p-values 
 # alpha:      target Type 1 error level
+# ub_func:    function for the uniform upper bound
 # n_included: number of included hypotheses
 # h_sum:      sum of included h(P)
 # mask_fun:   name of the masking function (tent/railway/continous)
-# mask_para:  parameter in the masking function 
-# ub_func:    function for the uniform upper bound
+# mask_para:  parameter in the masking function
 # threshold:  threshold for filtering the hypotheses
 adaptive_mt_online = function(P, alpha, ub_func, n_included, h_sum,
                               mask_fun, mask_para, threshold){
@@ -56,19 +56,19 @@ adaptive_mt_online = function(P, alpha, ub_func, n_included, h_sum,
   }
 }
 
-#********** to be changed
 # online interactive martingale test
 # P:          vector of p-values 
 # x:          side information 
-# alpha:      target Type 1 error level
+# alpha:      targeted Type I error level
 # n_included: number of included hypotheses
 # h_sum:      sum of included h(P)
+# structure:  type of structure (sequence/tree)
 # mask_fun:   name of the masking function (tent/railway/continous)
 # mask_para:  parameter in the masking function 
 # ub_func:    function for the uniform upper bound
 # threshold:  threshold for filtering the hypotheses
 interactive_mt_online = function(P, x, alpha, ub_func, n_included, h_sum, structure,
-                              mask_fun, mask_para, threshold){
+                                 mask_fun, mask_para, threshold){
   n_passed = length(P)
   h_g = mask_gen(P, mask_fun, mask_para); h = h_g$h; g = h_g$g
   m_set = rep(FALSE, n_passed)
@@ -98,7 +98,6 @@ interactive_mt_online = function(P, x, alpha, ub_func, n_included, h_sum, struct
 # alpha:      target Type 1 error level
 # ub_func:    function for the uniform upper bound
 # n_included: number of included hypotheses
-# sum_stat:   sum statistics of included hypotheses
 lord = function(P, alpha, ub_func, n_included){
   n_passed = length(P)
   exceed_time = which(P < ub_func((n_included + 1):(n_included + n_passed), alpha = alpha))

@@ -31,7 +31,6 @@ mask_gen = function(P, mask_fun, mask_para, g_num_map = NULL, centered = FALSE){
 
 
 # generate the mapping of g(P) for a continuous masking
-# eps: masking parameter
 g_map_gen = function(){
   for (eps in seq(0, 0.8, 0.2)) {
     if (eps > 0){
@@ -48,6 +47,7 @@ g_map_gen = function(){
   }
 }
 
+# g(P) for a given p value and parameter eps
 g_num_map = function(x, eps) {
   load(paste("intermediate_results/g_num_val_",eps*10,".Rdata", sep = ""))
   return(g_num_val[round(x*1000) + 1])

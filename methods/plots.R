@@ -5,7 +5,7 @@ allcolor_name = c("deepskyblue2", "purple", "green3", "yellow4", "red1", "magent
 
 figure_generator = function(mode, legend_name, color_name, expr_type = "offline", 
                            alpha = 0.05, alpha_bar = TRUE, error_bar = FALSE,
-                           exclude_methods = c(), legend_pos = c(0.8,0.7),
+                           exclude_methods = c(), legend_pos = c(0.8,0.7), legend_size = 8,
                            y_scale = NA, x_factor = NA, x_name = NA,
                            save = FALSE){
   load(file = paste(dirname(getwd()),"/results/", mode,".Rdata", sep = ""))
@@ -19,9 +19,9 @@ figure_generator = function(mode, legend_name, color_name, expr_type = "offline"
         rowMeans(matrix(unlist(x), nrow = length(x[[1]])),na.rm = TRUE)})
     }
     sd_power = sapply(result, function(x) {rowSes(matrix(unlist(x), nrow = length(x[[1]])))})
-    mu_seq = rep(as.numeric(colnames(power)), each = nrow(power))
+    mu_seq = rep(as.numeric(colnames(power)), each = nrow(power)); neg = FALSE
     if(any(mu_seq < 0)) {
-      mu_seq = -mu_seq
+      mu_seq = -mu_seq; neg = TRUE
     }
     if(!is.na(x_factor)) {mu_seq = x_factor*mu_seq}
     if(is.na(x_name)) {x_name = "alternative mean"}
@@ -58,7 +58,7 @@ figure_generator = function(mode, legend_name, color_name, expr_type = "offline"
           panel.grid.major = element_line(colour = "grey", linetype = "dotted"),
           panel.grid.minor = element_line(colour = "grey"),
           text = element_text(size = 15),
-          legend.position = legend_pos, legend.text = element_text(size = 8)) +
+          legend.position = legend_pos, legend.text = element_text(size = legend_size)) +
     xlab(x_name) + ylab(y_name) 
   if(expr_type %in% c("offline", "sparsity") & is.na(y_scale)) {
     p = p + scale_y_continuous(breaks = seq(0,1,0.2), limits = c(0,1))
@@ -74,7 +74,7 @@ figure_generator = function(mode, legend_name, color_name, expr_type = "offline"
     p = p + ylab("Type 1 error") +
       scale_y_continuous(breaks = seq(0, y_scale, length.out = 6), limits = c(0,y_scale))
   }
-  if(any(mu_seq < 0)){
+  if(neg){
     p = p + scale_x_continuous(labels = 0:-4)
   }
   plot(p)
@@ -129,13 +129,13 @@ figure_generator(mode = "seq_online", expr_type = "online",
                  color_name = allcolor_name[3:5], alpha_bar = FALSE)
 
 #######Figure 2
-load(file = paste(dirname(getwd()),"/result/mu_heatmap.Rdata", sep = ""))
-longData = melt(mu_mat[10:1,])
+load(file = paste(dirname(getwd()),"/results/mu_heatmap.Rdata", sep = ""))
+longData = melt(mu_mat)
 N1_seq <- round(10^(seq(2, 3, length.out = 10)))
 N0_seq <- round(10^(seq(2, 5, length.out = 10)))
 p = ggplot(longData, aes(x = Var2, y = Var1)) +
   geom_raster(aes(fill=value)) +
-  scale_fill_gradient(low="yellow", high= "red", limits=c(0, 4.5), name = expression(mu)) +
+  scale_fill_gradient(low="yellow", high= "red", limits=c(0, 4), name = expression(mu)) +
   theme_bw() + theme(axis.text.x=element_text(size=9, angle=0, vjust=0.3),
                      axis.text.y=element_text(size=9),
                      #axis.title.x=element_blank(), axis.title.y=element_blank(),
@@ -150,7 +150,7 @@ p = ggplot(longData, aes(x = Var2, y = Var1)) +
   scale_y_continuous(labels = round(log10(N1_seq[seq(2, 10, 2)]),1), breaks = seq(2, 10, 2)) +
   coord_cartesian(xlim = c(1, 10), ylim = c(1, 10)) 
 plot(p)
-ggsave(filename = paste(dirname(getwd()),"/figure/mu_heatmap.pdf", sep = ""),
+ggsave(filename = paste(dirname(getwd()),"/figures/mu_heatmap.pdf", sep = ""),
        plot = p, device = "pdf", width = 5, height = 4)
 
 
@@ -182,7 +182,7 @@ figure_generator(mode = "grid_corner",
 methods = c("Stouffer (batch)", "MST", "IMT")
 figure_generator(mode = "tree_batch", 
                  legend_name = factor(methods, levels = methods[c(3,2,1)]),
-                 legend_pos = c(0.2, 0.8),
+                 legend_pos = c(0.2, 0.8), x_factor = 0.5,
                  color_name = allcolor_name[c(1,4,5)])
 
 ######Figure 6
@@ -190,12 +190,12 @@ methods = c("Stouffer (batch)", "MST", "IMT")
 #(a)
 figure_generator(mode = "tree_decrease", 
                  legend_name = factor(methods, levels = methods[c(3,2,1)]),
-                 exclude_methods = methods[1], legend_pos = c(0.2, 0.8), 
+                 exclude_methods = methods[1], legend_pos = c(0.2, 0.8), x_factor = 0.5,
                  color_name = allcolor_name[c(1,4)])
 #(b)
 figure_generator(mode = "tree_increase", 
                  legend_name = factor(methods, levels = methods[c(3,2,1)]),
-                 exclude_methods = methods[1], legend_pos = c(0.2, 0.8), 
+                 exclude_methods = methods[1], legend_pos = c(0.2, 0.8), x_factor = 0.5,
                  color_name = allcolor_name[c(1,4)])
 
 ######Figure 7
@@ -214,9 +214,9 @@ figure_generator(mode = "tree_online", expr_type = "online",
 
 ######Figure 9
 methods = c("Stouffer (batch)", "MST", "IMT (tent)", "IMT (railway)")
-figure_generator(mode = "conservative_100_1.5", 
+figure_generator(mode = "conservative_100_1.5", x_name = "null mean",
                  legend_name = factor(methods, levels = methods[c(4,3,2,1)]),
-                 legend_pos = c(0.8, 0.6),
+                 legend_pos = c(0.75, 0.6), legend_size = 12, 
                  color_name = allcolor_name[c(2,1,4,5)])
 
 ######Figure 10
@@ -235,7 +235,7 @@ g_mat = sapply(h_g, function(x){x$g})
 legend_name = c("g_ori", paste("g_",eps[-5], sep = ""), "g_m")
 bound_figure_generator(mode = "g_varyc", bound = g_mat, legend_name = legend_name,
                        color_name = allcolor_name[1:6], add_point = FALSE, width = 1.5, height = 3,
-                       legend_pos = c(0.8,0.7), x_name = "p-value", y_name = "masked p-value")
+                       legend_pos = c(0.8,0.7), x_name = "p-value", y_name = "masked p-values")
 
 
 ######Figure 11
@@ -243,7 +243,7 @@ eps = seq(0, 0.8, 0.2)
 methods = c("h", "f_m", paste("f_",eps[-1], sep = ""))
 figure_generator(mode = "continuous_masking_ubConstant", 
                  legend_name = factor(methods, levels = methods[c(1, 3:6, 2)]),
-                 legend_pos = c(0.2, 0.7),
+                 legend_pos = c(0.2, 0.7), x_factor = 0.3, 
                  color_name = allcolor_name[1:6])
 
 ######Figure 12
@@ -338,15 +338,16 @@ figure_generator(mode = "grid_center_heteroMu",
 eps = seq(0, 0.8, 0.2)
 methods = c("h", "f_m", paste("f_",eps[-1], sep = ""))
 #(b)
-figure_generator(mode = "continuous_masking_ubLinear_zeroMean", 
-                 legend_name = factor(methods, levels = methods[c(1, 3:6, 2)]),
-                 legend_pos = c(0.2, 0.7),
-                 color_name = allcolor_name[1:6])
-#(c)
 figure_generator(mode = "continuous_masking_ubLinear", 
                  legend_name = factor(methods, levels = methods[c(1, 3:6, 2)]),
                  legend_pos = c(0.2, 0.7),
                  color_name = allcolor_name[1:6])
+#(c)
+figure_generator(mode = "continuous_masking_ubLinear_zeroMean", 
+                 legend_name = factor(methods, levels = methods[c(1, 3:6, 2)]),
+                 legend_pos = c(0.2, 0.7), x_factor = 0.3,
+                 color_name = allcolor_name[1:6])
+
 
 
 

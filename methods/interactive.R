@@ -1,10 +1,10 @@
 # martingale Stouffer test (MST)
-# P:         vector of p-values 
-# x:         side information 
-# alpha:     target Type 1 error level
-# ub:        uniform upper bound for rejection
-# structure: structure of the hypotheses (grid/tree)
-# d, delta:  parameters of expanding M_k for the grid structure
+# P:              vector of p-values 
+# x:              side information 
+# alpha:          target Type 1 error level
+# ub:             uniform upper bound for rejection
+# structure:      structure of the hypotheses 
+# structure_para: parameters for different structures eg. (d, delta) for a grid structure
 mst = function(P, x, alpha, ub, structure, structure_para = NULL){
   n = length(P); h = qnorm(1 - P)
   if (structure %in% c("sequence_beta", "sequence_gather", "sequence_even",
@@ -53,19 +53,21 @@ adaptive_mt = function(P, alpha, mask_fun, mask_para, ub){
 }
 
 
+
 # interactive martingale test (IMT)
-# P:         vector of p-values of length n
-# x:         side information 
-# alpha:     target Type 1 error level
-# mask_fun:  name of the masking function
-# mask_para: parameter in the masking function 
-# ub:        uniform upper bound for rejection
-# structure: structure of the hypotheses (grid/tree)
-# S_model:   indicator of whether modelling the nonnull likelihood
-# d, delta:  parameters of expanding M_k for the grid structure
-# tree_obj:  the tree object when hypotheses form a tree
-interactive_mt = function(P, x, alpha, mask_fun, mask_para, ub, structure, structure_para,
-               S_model = TRUE, d = 5, delta = 0.05, tree_obj = NULL, centered = FALSE){
+# P:              vector of p-values of length n
+# x:              side information 
+# alpha:          target Type 1 error level
+# mask_fun:       name of the masking function
+# mask_para:      parameter in the masking function 
+# centered:       indicator of whether the missing bits h in continuous masking is centered
+# ub:             uniform upper bound for rejection
+# structure:      structure of the hypotheses 
+# structure_para: parameters for different structures eg. (d, delta) for a grid structure
+# S_model:        indicator of whether modelling the nonnull likelihood
+# figure:         whether generate the plot of rejection set
+interactive_mt = function(P, x, alpha, mask_fun, mask_para, centered = FALSE, ub, 
+                          structure, structure_para, S_model = TRUE, figure = FALSE){
   if(mask_fun == "continuous" & length(ub) == 2) {
     ub_para = ub
   }
@@ -102,84 +104,45 @@ interactive_mt = function(P, x, alpha, mask_fun, mask_para, ub, structure, struc
       rej = sum(h[m_set]) > ub
     } else {
       rej = sum(h[m_set]) > ub[sum(m_set)]
-      #print(c(sum(m_set), sum(h[m_set])))
     }
     iter = iter + 1
-    #print(sum(m_set))
-    if (0) {
-      # if(iter == 0){
-      #   record = data.frame(x = sum(m_set), y = sum(h[m_set]))
-      # } else {
-      #   record = rbind(record, data.frame(x = sum(m_set), y = sum(h[m_set])))
-      # }
-      # df = data.frame(x = 1:20, y = ub[1:20])
-      # p = ggplot(data=df, aes(x=x, y=y, group=1)) + xlim(1,20) + ylim(0, 15) + 
-      #   geom_line() + theme(legend.position = "none") + xlab("Number of included hypothesis") +
-      #   ylab("") + 
-      #   geom_point(data = record,
-      #              mapping = aes(x = x, y = y, shape = "21", color = "red", size = 5))
-      # ggsave(filename = paste("figure/line_", iter, ".png", sep = ""),
-      #                plot = p, device = "png", width = 4, height = 4)
-      # plot_pval = 1 - as.numeric(nonnull_ind)
-      # longData = melt(matrix(plot_pval, nrow = D))
-      # p = ggplot(longData, aes(x = Var2, y = Var1)) +
-      #   geom_raster(aes(fill=value)) +
-      #   scale_fill_gradient(low="violetred1", high= "slategray1", limits=c(0, 1)) +
-      #   labs(title = bquote(t == .(iter)*","*~~~~~
-      #                         "#cand" == .(sum(m_set))*","*~~~~~
-      #                         sum(h) == .(sum(h[m_set])))) +
-      #   theme_bw() + theme(axis.text.x=element_text(size=9, angle=0, vjust=0.3),
-      #                      axis.text.y=element_text(size=9),
-      #                      axis.title.x=element_blank(), axis.title.y=element_blank(),
-      #                      plot.title=element_text(size=11),
-      #                      legend.position = "none",
-      #                      panel.grid.major = element_blank(),
-      #                      panel.grid.minor = element_blank()) +
-      #   geom_vline(xintercept=seq(-0.5, 31.5, by=1), color = "grey") +
-      #   geom_hline(yintercept=seq(-0.5, 31.5, by=1), color = "grey") +
-      #   scale_x_continuous(breaks=seq(1, 10, 1)) +
-      #   scale_y_continuous(breaks=seq(1, 10, 1)) +
-      #   coord_cartesian(xlim = c(1, 10), ylim = c(1, 10))
-      # plot(p)
-      # ggsave(filename = paste("figure/true.png", sep = ""),
-      #        plot = p, device = "png", width = 4, height = 4)
-      # 
-      # plot_pval = g*(!m_set) + P*m_set
-      # longData = melt(matrix(plot_pval, nrow = D))
-      # p = ggplot(longData, aes(x = Var2, y = Var1)) +
-      #   geom_raster(aes(fill=value)) +
-      #   scale_fill_gradient(low="violetred1", high= "slategray1", limits=c(0, 1)) +
-      #   labs(title = bquote(t == .(iter)*","*~~~~~
-      #                         "#cand" == .(sum(m_set))*","*~~~~~
-      #                         sum(h) == .(sum(h[m_set])))) +
-      #   theme_bw() + theme(axis.text.x=element_text(size=9, angle=0, vjust=0.3),
-      #                      axis.text.y=element_text(size=9),
-      #                      axis.title.x=element_blank(), axis.title.y=element_blank(),
-      #                      plot.title=element_text(size=11),
-      #                      legend.position = "none",
-      #                      panel.grid.major = element_blank(),
-      #                      panel.grid.minor = element_blank()) +
-      #   geom_vline(xintercept=seq(-0.5, 31.5, by=1), color = "grey") +
-      #   geom_hline(yintercept=seq(-0.5, 31.5, by=1), color = "grey") +
-      #   scale_x_continuous(breaks=seq(1, 10, 1)) +
-      #   scale_y_continuous(breaks=seq(1, 10, 1)) +
-      #   coord_cartesian(xlim = c(1, 10), ylim = c(1, 10))
-      # plot(p)
-      # ggsave(filename = paste("figure/gvals_", iter, ".png", sep = ""),
-      #        plot = p, device = "png", width = 4, height = 4)
+    if (figure) {
+      plot_pval = as.numeric(m_set)*(1 - P) #g*(!m_set) + P*m_set
+      longData = melt(matrix(plot_pval, nrow = D))
+      p = ggplot(longData, aes(x = Var2, y = Var1)) +
+        geom_raster(aes(fill=value)) +
+        scale_fill_gradient(low="slategray1",high="violetred1", limits=c(0, 1)) +
+        theme_bw() + theme(axis.title=element_blank(),
+                           axis.ticks = element_blank(),
+                           axis.text=element_blank(),
+                           legend.position = "none",
+                           panel.border = element_blank(),
+                           panel.grid.major = element_blank(),
+                           panel.grid.minor = element_blank(),
+                           panel.background = element_blank()) 
+      plot(p)
+      ggsave(filename = paste(dirname(getwd()),"/figure/example_rejset/rejection_set_",
+                              iter, ".png", sep = ""),
+             plot = p, device = "png", width = 4, height = 4)
     }
   }
   return(rej)
 }
 
 
+
+
 # EM algorithm under mixture model to get the non-null likelihood score
 # masked_P:  vector of masked p-value information
 # x:         side information 
-# rej_ind:   vector of indicators for whether a hypothesis is in the rejection set
+# m_set:     vector of indicators for whether a hypothesis is in the rejection set
 # mask_fun:  name of the masking function
 # mask_para: a vector of parameters in the masking function
+# structure: type of non-null structure
+# decrease:  used for tree structure to indicate whether the probability of being non-null
+#            is believed to decrease or increase
 # iter:      number of EM iterations, default to five
+# df:        degrees in the B-spline basis
 em_mixture = function(masked_P, x, m_set, mask_fun, mask_para, structure, decrease = FALSE,
                       iter = 5, df = 3){
   masked_P[masked_P < 10^(-10)] = 10^(-10)  ## avoid Inf in calculation
@@ -206,16 +169,12 @@ em_mixture = function(masked_P, x, m_set, mask_fun, mask_para, structure, decrea
     mu = mask_para %>% ifelse(mask_fun %in% c("tent", "railway"), ., .[1]) %>%
       max(mu, qnorm(1 - .) + 0.5)
     # likelihood of each case with respect to the latent labels w and q
-    # a = pi_set*dnorm(masked_Z - mu); b = (1 - pi_set)*dnorm(masked_Z)
-    # c = pi_set*dnorm(inv_Z - mu); d = (1 - pi_set)*dnorm(inv_Z)
     a = pi_set*dnorm(masked_Z - mu); b = (1 - pi_set)*dnorm(masked_Z)
     if (mask_fun %in% c("gap", "gap-railway")) {
       drv = dnorm(masked_Z)/dnorm(inv_Z)*(1 - mask_para[2])/mask_para[1]
     } else if (mask_fun %in% c("tent", "railway")) {
       drv = dnorm(masked_Z)/dnorm(inv_Z)*(1 - mask_para)/mask_para
     }
-    #c = pi_set*dnorm(inv_Z - mu)*drv; d = (1 - pi_set)*dnorm(inv_Z)*drv
-    
     a = ifelse(!m_set, a, a/(a+b)); a[is.na(a)] = 0.5
     b = ifelse(!m_set, b, 1 - a)
     c = ifelse(!m_set, pi_set*dnorm(inv_Z - mu)*drv, 0)
@@ -228,8 +187,8 @@ em_mixture = function(masked_P, x, m_set, mask_fun, mask_para, structure, decrea
       phi = phi_x[,rep(1:df, each = df)] * phi_y[,rep(1:df, times = df)]
       pi_set = glm(q~phi, family = quasibinomial())$fitted.values
     } else if (structure == "tree-decrease") {
-        pi_set = activeSet(isomat = x[,c(2,1)], mySolver = "LS", y = q,
-                           weights = rep(1, length(masked_P)))$x
+      pi_set = activeSet(isomat = x[,c(2,1)], mySolver = "LS", y = q,
+                         weights = rep(1, length(masked_P)))$x
     } else if (structure == "tree-increase") {
       pi_set = activeSet(isomat = x, mySolver = "LS", y = q,
                          weights = rep(1, length(masked_P)))$x
@@ -247,13 +206,14 @@ em_mixture = function(masked_P, x, m_set, mask_fun, mask_para, structure, decrea
 
 
 
+
 # update M_k under clustered non-null structure 
-# S:      non-null likelihood score
+# S:      estimated posterior probability of being non-null
 # x:      side information
 # m_set:  vector of indicators for whether a hypothesis is in the previous M_k
 # d:      number of cones
 # delta:  proportion of hypothesis to be included in one cone
-# random: indicator of whether include hypothesis from a random cone 
+# random: indicator of whether include hypothesis from a random cone (for MST)
 inclu_search_cluster = function(S, x, m_set, d, delta, random){
   if (sum(m_set) == 0 & random) {
     C = round(colMedians(x))
@@ -302,9 +262,10 @@ inclu_search_cluster = function(S, x, m_set, d, delta, random){
 
 
 # update M_k under a tree structure 
-# S:        non-null likelihood score
-# tree_obj: the tree structure where hypotheses lives
-# m_set:    vector of indicators for whether a hypothesis is in the previous M_k
+# S:         estimated posterior probability of being non-null
+# structure: type of tree structure (wide/increase/decrease)
+# tree_obj:  the tree structure where hypotheses lives
+# m_set:     vector of indicators for whether a hypothesis is in the previous M_k
 inclu_search_tree = function(S, structure, tree_obj, m_set) {
   if (structure %in% c("tree-wide", "tree-decrease")) {
     tree_obj$Set(cand = !m_set, traversal = "level")
@@ -340,6 +301,7 @@ inclu_search_tree = function(S, structure, tree_obj, m_set) {
 }
 
 
+# the null distribution of HC statistics given weights w
 null_HC = function(w0, sample_size = 1000){
   n = length(w0)
   H_sample = foreach(i = 1:sample_size, .combine = c,

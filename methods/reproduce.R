@@ -32,6 +32,24 @@ for (mu in mu_seq) {
 save(result, file=paste(dirname(getwd()), "/results/seq_online.Rdata", sep = ""))
 
 
+############### Figure 2 ###############
+# minimum alternative mean with targeted type-I and type-II error control
+N1_seq <- round(10^(seq(2, 3, length.out = 10)))
+N0_seq <- round(10^(seq(2, 5, length.out = 10)))
+mu_mat <- matrix(nrow = length(N1_seq), ncol = length(N0_seq))
+i = 1; j = 1
+for (N1 in N1_seq) {
+  for (N0 in N0_seq) {
+    mu_mat[i,j] <- find_mu(N1, N0, alpha = 0.05, beta = 0.025, R = 1000)
+    print(c(i,j))
+    j = j + 1
+  }
+  i = i + 1; j = 1
+}
+save(mu_mat, file=paste(dirname(getwd()), "/results/mu_heatmap.Rdata", sep = ""))
+
+
+
 ############### Figure 4 ###############
 # (a) compare methods in a grid of hypotheses with nonnulls in the center 
 mu_seq = seq(0, 1.8, length.out = 7)
@@ -196,7 +214,6 @@ save(result, file=paste(dirname(getwd()),
 
 
 ############### Figure 12 ###############
-#(a) vary linear bound in MST
 sparsity_seq = c(0.01, seq(0.1, 1, length.out = 10))
 para_vary = list(list(name = "methods",
                       value = c("MST (m = n/4)", "MST (m = n/2)", "MST (m = 3n/4)", "MST (m = l, oracle)")),
@@ -217,7 +234,6 @@ result = expr_sparsity(para_vary)
 save(result, file=paste(dirname(getwd()), "/results/mst_curve_bound.Rdata", sep = ""))
 
 ############### Figure 14 ###############
-#(b) vary linear bound in MFT
 sparsity_seq = c(0.01, seq(0.1, 1, length.out = 10))
 para_vary = list(list(name = "methods",
                       value = c("MFT (m = n/4)", "MFT (m = n/2)", "MFT (m = 3n/4)", "MFT (m = l, oracle)")),
@@ -228,7 +244,6 @@ save(result, file=paste(dirname(getwd()), "/results/mft_linear_bound.Rdata", sep
 
 
 ############### Figure 15 ###############
-#(a) power
 sparsity_seq = c(0.01, seq(0.1, 1, length.out = 10))
 para_vary = list(list(name = "methods",
                       value = c("MFT (linear)", "MFT (curve)")),
@@ -275,6 +290,7 @@ for (mu in mu_seq) {
   result[[as.character(mu)]] = expr_offline(para_vary)
 }
 save(result, file="results/grid_center_heteroMu.Rdata")  
+
 
 ############### Rebuttal Figure 3 ###############
 #(b)
