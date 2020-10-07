@@ -67,7 +67,8 @@ adaptive_mt = function(P, alpha, mask_fun, mask_para, ub){
 # S_model:        indicator of whether modelling the nonnull likelihood
 # figure:         whether generate the plot of rejection set
 interactive_mt = function(P, x, alpha, mask_fun, mask_para, centered = FALSE, ub, 
-                          structure, structure_para, S_model = TRUE, figure = FALSE){
+                          structure, structure_para, S_model = TRUE,
+                          figure = FALSE, save_figure = FALSE){
   if(mask_fun == "continuous" & length(ub) == 2) {
     ub_para = ub
   }
@@ -108,7 +109,7 @@ interactive_mt = function(P, x, alpha, mask_fun, mask_para, centered = FALSE, ub
     iter = iter + 1
     if (figure) {
       plot_pval = as.numeric(m_set)*(1 - P) #g*(!m_set) + P*m_set
-      longData = melt(matrix(plot_pval, nrow = D))
+      longData = melt(matrix(plot_pval, nrow = sqrt(n)))
       p = ggplot(longData, aes(x = Var2, y = Var1)) +
         geom_raster(aes(fill=value)) +
         scale_fill_gradient(low="slategray1",high="violetred1", limits=c(0, 1)) +
@@ -121,9 +122,11 @@ interactive_mt = function(P, x, alpha, mask_fun, mask_para, centered = FALSE, ub
                            panel.grid.minor = element_blank(),
                            panel.background = element_blank()) 
       plot(p)
-      ggsave(filename = paste(dirname(getwd()),"/figure/example_rejset/rejection_set_",
-                              iter, ".png", sep = ""),
-             plot = p, device = "png", width = 4, height = 4)
+      if(save_figure) {
+        ggsave(filename = paste(dirname(getwd()),"/figures/example_rejset/rejection_set_",
+                                iter, ".png", sep = ""),
+               plot = p, device = "png", width = 4, height = 4)
+      }
     }
   }
   return(rej)

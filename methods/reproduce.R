@@ -119,7 +119,6 @@ save(result, file=paste(dirname(getwd()), "/results/tree_decrease.Rdata", sep = 
 
 
 # (b) compare methods in a fixed tree increasing probability 
-print("tree-increase")
 mu_seq = seq(0, 3, length.out = 7)
 result = list()
 for (mu in mu_seq) {

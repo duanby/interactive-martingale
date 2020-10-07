@@ -11,7 +11,7 @@ expr_offline = function(para_vary){
       guess_nonnull = nonnull_cluster(D = D, r = r, C = c(D/2, D/2))
       w0 = as.vector(1*guess_nonnull + 0.5*(!guess_nonnull)); w0 = w0/mean(w0)
       HC_dist = null_HC(w0)
-      save(HC_dist, file="result/HC_dist.Rdata")
+      save(HC_dist, file="intermediate_results/HC_dist.Rdata")
     }
   } else if (structure == "tree-wide") {
     n = sum(20*n_child^(0:(levels-1))) + 1
@@ -101,7 +101,7 @@ expr_offline = function(para_vary){
                        mask_fun = "railway", mask_para = 0.5, S_model = smoothed)
     }
     if ("weighted-HC" %in% methods) {
-      load(file = "result/HC_dist.Rdata")
+      load(file = "intermediate_results/HC_dist.Rdata")
       pwval = cal_cdf(dat$P, w=w0)
       HC_val = hc_cal(pwval,t0ratio = 0.4)
       rejections["weighted-HC"] = HC_val > quantile(HC_dist, 0.95)

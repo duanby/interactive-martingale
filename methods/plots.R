@@ -8,8 +8,7 @@ figure_generator = function(mode, legend_name, color_name, expr_type = "offline"
                            exclude_methods = c(), legend_pos = c(0.8,0.7), legend_size = 8,
                            y_scale = NA, x_factor = NA, x_name = NA,
                            save = FALSE){
-  load(file = paste(dirname(getwd()),"/results/", mode,".Rdata", sep = ""))
-  load(file = paste(dirname(getwd()),"/results/", mode,".Rdata", sep = ""))
+  load(file = paste(dirname(getwd()),"/results/", mode,".Rdata", sep = "")); neg = FALSE
   if(expr_type == "offline") {
     if(is.data.frame(result[[1]][[1]])){
       power = sapply(result, function(x) {
@@ -22,7 +21,7 @@ figure_generator = function(mode, legend_name, color_name, expr_type = "offline"
     mu_seq = rep(as.numeric(colnames(power)), each = nrow(power)); neg = FALSE
     if(any(mu_seq < 0)) {
       mu_seq = -mu_seq; neg = TRUE
-    }
+    } 
     if(!is.na(x_factor)) {mu_seq = x_factor*mu_seq}
     if(is.na(x_name)) {x_name = "alternative mean"}
     y_name = "power"
@@ -271,7 +270,7 @@ figure_generator(mode = "mst_curve_bound", expr_type = "sparsity",
                  color_name = allcolor_name[c(1,5,3,7)])
 
 #(b)
-n = 10^4
+n = 10^4; alpha = 0.05
 ub_mat = cbind(ub_func_linear_normal(1:n, alpha = alpha, m = n/4), 
                ub_func_curve_poly(1:n, alpha = alpha),
                ub_func_curve_mix(L = n, alpha = alpha, f_mix = f_mix),
@@ -289,7 +288,7 @@ figure_generator(mode = "mft_linear_bound", expr_type = "sparsity",
                  color_name = allcolor_name[c(1,5,6,7)])
 
 #(b)
-n = 10^4
+n = 10^4; alpha = 0.05
 ub_mat = sapply(1:3, function(x){ub_func_linear_exp(1:n, alpha = alpha, m = x*n/4)})
 legend_name = c("m = n/4", "m = n/2", "m = 3n/4")
 bound_figure_generator(mode = "mft_linear_bound_plot", bound = ub_mat, legend_name = legend_name,
@@ -305,7 +304,7 @@ figure_generator(mode = "mft_curve_bound", expr_type = "sparsity",
                  color_name = allcolor_name[c(1,5)])
 
 #(b)
-n = 10^4
+n = 10^4; alpha = 0.05
 ub_mat = cbind(ub_func_linear_exp(1:n, alpha = alpha, m = n/4),
                ub_func_curve_gamma(1:n, alpha = alpha))
 legend_name = c("linear", "curve")
